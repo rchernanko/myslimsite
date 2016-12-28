@@ -66,8 +66,13 @@ $app->get('/api/books_db/{id}', function (Request $request) {
     echo json_encode($data);
 });
 
-//HOW TO POST A RECORD
+//HOW TO POST DATA AND CREATE A NEW RECORD
 $app->post('/api/books_db', function (Request $request) {
+
+    /*
+
+    Prior to me adding to the db, this is what i had up and running...
+    Basically echo'd something onto my browser when i hit the books_db endpoint
 
     $my_name = $_POST['my_name'];
     echo "hello " . $my_name;
@@ -80,14 +85,88 @@ $app->post('/api/books_db', function (Request $request) {
 
     $my_name = $request->getParsedBody()['my_name']; //TODO read up on this - PSR7
     echo "hello again new way " . $my_name;
+
+    */
+
+    //Now, let's get this connected to my DB and let's use PREPARED STATEMENTS
+
+    global $mysqli;
+
+    $query = "INSERT INTO `books` (`book_title`, `author`, `amazon_url`) VALUES (?,?,?)";
+
+    //3 question marks = these are parameter markers. used for variable binding
+
+    $stmt = $mysqli->prepare($query);
+
+    $stmt->bind_param("sss", $book_title, $author, $amazon_url);
+    //each of these s's stands for string.
+    //I'm saying =  "i'm going to be adding 3 variables and i am expecting 3 strings"
+    //my three variables are book_title, author and amazon_url
+
+    $book_title = $request->getParsedBody()['book_title'];
+    $author = $request->getParsedBody()['author'];
+    $amazon_url = $request->getParsedBody()['amazon_url'];
+
+    $stmt->execute();
+
+    //When i use postman to post this (with variables in the body), a new record is then put into the database
+    //Awesome! See image entitled 'postman_post' in screenshots
+
+    //So what are the benefits of using prepared statements (vs $_POST)
+    //1 - Speed - it's very superfast...query is already in computer memory and is simlpy adding new parameters
+    //TODO video stopped - look this up
+
 });
 
 
-//HOW TO PUT / UPDATED A RECORD
-$app->put('/api/books_db', function (Request $request) {
+//HOW TO UPDATE A RECORD ON THE DATABASE
+$app->put('/api/books_db/{id}', function (Request $request) {
+
+    /*
+     * Prior to me linking this up to the db, this is what this looked like. when i did a PUT in postman, it
+     * displayed the echo'd text
 
     $my_name = $request->getParsedBody()['my_name'];
     echo "hello this is a put request with " . $my_name;
 
     //works in postman :-) but needed to change content type to x-www-form-urlencoded
+
+     */
+
+    //Now let's hook it up to the db...
+
+    global $mysqli;
+
+    $id = $request->getAttribute('id');
+
+    $query = "UPDATE `books` SET `book_title` = ?, `author` = ?, `amazon_url` = ? WHERE `books`.`id` = $id";
+
+    $stmt = $mysqli->prepare($query);
+
+    $stmt->bind_param("sss", $book_title, $author, $amazon_url);
+
+    $book_title = $request->getParsedBody()['book_title'];
+    $author = $request->getParsedBody()['author'];
+    $amazon_url = $request->getParsedBody()['amazon_url'];
+
+    $stmt->execute();
+
+    //When i use postman to PUT this (with variables in the body), the record (with the corresponding id) is updated
+    //e.g. http://myslimsite/api/books_db/7 (plus body values)
+    //Awesome! See image entitled 'postman_put' in screenshots
+
+});
+
+//HOW TO DELETE A RECORD FROm THE DATABASE
+$app->delete('/api/books_db/{id}', function (Request $request) {
+
+    global $mysqli;
+
+    $id = $request->getAttribute('id');
+    $query = "delete from books where id = $id";
+    $result = $mysqli->query($query);
+
+    //amazing - do a delete in postman - http://myslimsite/api/books_db/4
+    //see image entitled 'postman_delete' screenshote
+
 });
