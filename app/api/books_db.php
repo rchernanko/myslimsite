@@ -65,3 +65,25 @@ $app->get('/api/books_db/{id}', function (Request $request) {
     header('Content-Type: application/json');
     echo json_encode($data);
 });
+
+//How to post a record to the new db
+$app->post('/api/books_db', function (Request $request) {
+
+    $my_name = $_POST['my_name'];
+    echo "hello " . $my_name;
+
+    //I've now used POSTMAN and got it to say 'hello richard'
+    //See image i've saved in screenshots folder entitled 'postman'
+
+    //David mentions that the use of $_POST and $_GET is quite retro
+    //There is another way to do this - comes with the SLIM framework
+
+    $my_name = $request->getParsedBody()['my_name']; //TODO read up on this
+    echo "hello again new way " . $my_name;
+});
+
+
+//How to update a record - use put
+$app->put('/api/books_db', function () {
+
+});
