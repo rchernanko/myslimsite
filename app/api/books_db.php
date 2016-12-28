@@ -66,7 +66,7 @@ $app->get('/api/books_db/{id}', function (Request $request) {
     echo json_encode($data);
 });
 
-//How to post a record to the new db
+//HOW TO POST A RECORD
 $app->post('/api/books_db', function (Request $request) {
 
     $my_name = $_POST['my_name'];
@@ -78,12 +78,16 @@ $app->post('/api/books_db', function (Request $request) {
     //David mentions that the use of $_POST and $_GET is quite retro
     //There is another way to do this - comes with the SLIM framework
 
-    $my_name = $request->getParsedBody()['my_name']; //TODO read up on this
+    $my_name = $request->getParsedBody()['my_name']; //TODO read up on this - PSR7
     echo "hello again new way " . $my_name;
 });
 
 
-//How to update a record - use put
-$app->put('/api/books_db', function () {
+//HOW TO PUT / UPDATED A RECORD
+$app->put('/api/books_db', function (Request $request) {
 
+    $my_name = $request->getParsedBody()['my_name'];
+    echo "hello this is a put request with " . $my_name;
+
+    //works in postman :-) but needed to change content type to x-www-form-urlencoded
 });
